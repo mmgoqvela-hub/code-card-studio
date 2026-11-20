@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1120" />
+  <title>Code Card Studio | مولّد بطاقات الكود الاحترافي</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, Arial, sans-serif;
+      background: #0b1120;
+      color: #f8fafc;
+      padding: 16px;
+      line-height: 1.6;
+    }
+    .app { max-width: 980px; margin: 0 auto; }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px; margin-bottom: 18px;
+      padding-bottom: 12px; border-bottom: 1px solid #1e293b;
+    }
+    h1 { font-size: 21px; color: #38bdf8; }
+    .sub { color: #94a3b8; font-size: 13px; }
+    .panel {
+      background: #111827; border: 1px solid #1f2937;
+      border-radius: 14px; padding: 16px; margin-bottom: 18px;
+    }
+    .controls {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 10px; margin-bottom: 14px;
+    }
+    label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 4px; }
+    input, select, textarea, button {
+      width: 100%; border-radius: 8px; border: 1px solid #334155;
+      font-size: 14px; padding: 9px 11px;
+    }
+    input, select { background: #0f172a; color: #f8fafc; }
+    textarea {
+      background: #0f172a; color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      direction: ltr; text-align: left; min-height: 190px; resize: vertical;
+      tab-size: 4;
+    }
+    .toggles {
+      display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0;
+      align-items: center; font-size: 13px; color: #cbd5e1;
+    }
+    .toggles label {
+      display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer;
+    }
+    .toggles input[type="checkbox"] { width: auto; accent-color: #38bdf8; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    button {
+      background: #0284c7; color: #fff; border: none; font-weight: 700;
+      cursor: pointer; flex: 1; min-width: 140px; transition: background 0.15s;
+    }
+    button:hover { background: #0369a1; }
+    button.secondary { background: #1e293b; border: 1px solid #475569; }
+    button.secondary:hover { background: #334155; }
+    .preview-box {
+      background: #090d16; border: 1px solid #1e293b; border-radius: 12px;
+      padding: 16px; overflow-x: auto; text-align: center;
+    }
+    canvas {
+      max-width: 100%; height: auto; border-radius: 10px;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.5);
+    }
+    .toast {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+      background: #0284c7; color: #fff; padding: 10px 18px; border-radius: 999px;
+      font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s; z-index: 50;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Code Card Studio • مولّد بطاقات الكود</h1>
+        <div class="sub">تصميم وتصدير بطاقات برمجية عالية الدقة للمنصات التعليمية والاجتماعية</div>
+      </div>
+      <div class="sub">v2.0 • Offline Ready</div>
+    </header>
+
+    <section class="panel">
+      <div class="controls">
+        <div>
+          <label for="titleInput">عنوان الملف / الدرس</label>
+          <input id="titleInput" type="text" value="lesson_01.py" />
+        </div>
+        <div>
+          <label for="watermarkInput">العلامة المائية</label>
+          <input id="watermarkInput" type="text" placeholder="مثال: @python_plus" />
+        </div>
+        <div>
+          <label for="themeSelect">الثيم اللوني</label>
+          <select id="themeSelect">
+            <option value="ocean">Ocean Dark (أزرق محيطي)</option>
+            <option value="dracula">Dracula Neon (بنفسجي نيون)</option>
+            <option value="emerald">Emerald Night (زمردي ليلي)</option>
+            <option value="sunset">Sunset Warm (غروب دافئ)</option>
+            <option value="slate">Minimal Slate (رمادي هادئ)</option>
+          </select>
+        </div>
+        <div>
+          <label for="aspectSelect">مقاس البطاقة</label>
+          <select id="aspectSelect">
+            <option value="auto">تلقائي (حسب طول الكود)</option>
+            <option value="square">مربع (1080×1080)</option>
+            <option value="portrait">طولي إنستغرام (1080×1350)</option>
+          </select>
+        </div>
+        <div>
+          <label for="fontSizeSelect">حجم الخط</label>
+          <select id="fontSizeSelect">
+            <option value="14">صغير (14px)</option>
+            <option value="16" selected>متوسط (16px)</option>
+            <option value="18">كبير (18px)</option>
+            <option value="20">كبير جداً (20px)</option>
+          </select>
+        </div>
+        <div>
+          <label for="scaleSelect">دقة التصدير</label>
+          <select id="scaleSelect">
+            <option value="2" selected>عالية (2x HD)</option>
+            <option value="3">فائقة (3x Ultra)</option>
+            <option value="1">قياسية (1x)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="toggles">
+        <label><input id="lineNumsCheck" type="checkbox" checked /> إظهار أرقام الأسطر</label>
+        <label><input id="highlightCheck" type="checkbox" checked /> تلوين الصياغة البرمجية</label>
+        <label><input id="windowDotsCheck" type="checkbox" checked /> أزرار النافذة العلوية</label>
+      </div>
+
+      <label for="codeInput">الكود البرمجي (يدعم زر Tab للمسافات البادئة)</label>
+      <textarea id="codeInput" spellcheck="false">def calculate_discount(price: float, percent: int) -> float:
+    # حساب السعر بعد الخصم
+    if percent <= 0:
+        return price
+    final_price = price - (price * percent / 100)
+    return round(final_price, 2)
+
+print(calculate_discount(150.0, 20))</textarea>
+
+      <div class="actions">
+        <button id="downloadBtn">تحميل الصورة (PNG)</button>
+        <button id="copyCodeBtn" class="secondary">نسخ الكود</button>
+        <button id="clearBtn" class="secondary">مسح الكود</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="sub" style="margin-bottom:10px;">المعاينة المباشرة للبطاقة:</div>
+      <div class="preview-box">
+        <canvas id="cardCanvas"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const THEMES = {
+      ocean: {
+        bgStart: "#0f172a", bgEnd: "#1d4ed8",
+        cardBg: "#090d16", border: "#1e293b", headerBg: "#111827",
+        text: "#f1f5f9", muted: "#64748b", watermark: "#cbd5e1",
+        keyword: "#38bdf8", string: "#4ade80", number: "#fbbf24", comment: "#64748b"
+      },
+      dracula: {
+        bgStart: "#1e1b4b", bgEnd: "#6d28d9",
+        cardBg: "#13111c", border: "#2e2842", headerBg: "#1a1726",
+        text: "#f8f8f2", muted: "#6272a4", watermark: "#e9d5ff",
+        keyword: "#ff79c6", string: "#f1fa8c", number: "#bd93f9", comment: "#6272a4"
+      },
+      emerald: {
+        bgStart: "#042f2e", bgEnd: "#047857",
+        cardBg: "#031412", border: "#115e59", headerBg: "#06211e",
+        text: "#ecfdf5", muted: "#5eead4", watermark: "#a7f3d0",
+        keyword: "#34d399", string: "#fde047", number: "#38bdf8", comment: "#5eead4"
+      },
+      sunset: {
+        bgStart: "#3b0712", bgEnd: "#c2410c",
+        cardBg: "#16070a", border: "#4c111c", headerBg: "#220a0f",
+        text: "#fff7ed", muted: "#fb923c", watermark: "#fed7aa",
+        keyword: "#fb7185", string: "#fde047", number: "#38bdf8", comment: "#9a3412"
+      },
+      slate: {
+        bgStart: "#18181b", bgEnd: "#3f3f46",
+        cardBg: "#09090b", border: "#27272a", headerBg: "#121215",
+        text: "#fafafa", muted: "#71717a", watermark: "#d4d4d8",
+        keyword: "#60a5fa", string: "#a3e635", number: "#f472b6", comment: "#71717a"
+      }
+    };
+
+    const KEYWORDS = new Set([
+      "def", "class", "return", "if", "elif", "else", "for", "while", "in",
+      "import", "from", "as", "try", "except", "finally", "with", "pass",
+      "break", "continue", "True", "False", "None", "and", "or", "not", "is",
+      "lambda", "async", "await", "yield", "function", "const", "let", "var",
+      "export", "default", "new", "this", "null", "undefined", "SELECT", "FROM",
+      "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE"
+    ]);
+
+    const STORAGE_KEY = "code_card_studio_v2";
+    const canvas = document.getElementById("cardCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const els = {
+      title: document.getElementById("titleInput"),
+      watermark: document.getElementById("watermarkInput"),
+      theme: document.getElementById("themeSelect"),
+      aspect: document.getElementById("aspectSelect"),
+      fontSize: document.getElementById("fontSizeSelect"),
+      scale: document.getElementById("scaleSelect"),
+      lineNums: document.getElementById("lineNumsCheck"),
+      highlight: document.getElementById("highlightCheck"),
+      windowDots: document.getElementById("windowDotsCheck"),
+      code: document.getElementById("codeInput"),
+      download: document.getElementById("downloadBtn"),
+      copyCode: document.getElementById("copyCodeBtn"),
+      clear: document.getElementById("clearBtn"),
+      toast: document.getElementById("toast")
+    };
+
+    function showToast(text) {
+      els.toast.textContent = text;
+      els.toast.classList.add("show");
+      setTimeout(() => els.toast.classList.remove("show"), 2000);
+    }
+
+    function savePrefs() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          title: els.title.value,
+          watermark: els.watermark.value,
+          theme: els.theme.value,
+          aspect: els.aspect.value,
+          fontSize: els.fontSize.value,
+          scale: els.scale.value,
+          lineNums: els.lineNums.checked,
+          highlight: els.highlight.checked,
+          windowDots: els.windowDots.checked
+        }));
+      } catch {}
+    }
+
+    function loadPrefs() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (!saved) return;
+        if (saved.title !== undefined) els.title.value = saved.title;
+        if (saved.watermark !== undefined) els.watermark.value = saved.watermark;
+        if (saved.theme) els.theme.value = saved.theme;
+        if (saved.aspect) els.aspect.value = saved.aspect;
+        if (saved.fontSize) els.fontSize.value = saved.fontSize;
+        if (saved.scale) els.scale.value = saved.scale;
+        if (typeof saved.lineNums === "boolean") els.lineNums.checked = saved.lineNums;
+        if (typeof saved.highlight === "boolean") els.highlight.checked = saved.highlight;
+        if (typeof saved.windowDots === "boolean") els.windowDots.checked = saved.windowDots;
+      } catch {}
+    }
+
+    function tokenizeLine(line, theme, useHighlight) {
+      if (!useHighlight) return [{ text: line, color: theme.text }];
+
+      const trimmed = line.trim();
+      if (trimmed.startsWith("#") || trimmed.startsWith("//") || trimmed.startsWith("--")) {
+        return [{ text: line, color: theme.comment }];
+      }
+
+      const tokens = [];
+      const regex = /("[^"]*"|'[^']*'|`[^`]*`|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b|[^\sA-Za-z0-9_]+|\s+)/g;
+      let match;
+
+      while ((match = regex.exec(line)) !== null) {
+        const part = match[0];
+        let color = theme.text;
+        if ((part.startsWith('"') && part.endsWith('"')) ||
+            (part.startsWith("'") && part.endsWith("'")) ||
+            (part.startsWith("`") && part.endsWith("`"))) {
+          color = theme.string;
+        } else if (/^\d+(\.\d+)?$/.test(part)) {
+          color = theme.number;
+        } else if (KEYWORDS.has(part)) {
+          color = theme.keyword;
+        }
+        tokens.push({ text: part, color });
+      }
+      return tokens;
+    }
+
+    function wrapLines(rawLines, maxChars) {
+      const result = [];
+      rawLines.forEach((line, idx) => {
+        if (line.length <= maxChars) {
+          result.push({ num: idx + 1, text: line });
+        } else {
+          for (let i = 0; i < line.length; i += maxChars) {
+            result.push({
+              num: i === 0 ? idx + 1 : "",
+              text: line.slice(i, i + maxChars)
+            });
+          }
+        }
+      });
+      return result;
+    }
+
+    function renderCard() {
+      const theme = THEMES[els.theme.value] || THEMES.ocean;
+      const scale = Number(els.scale.value) || 2;
+      const fontSize = Number(els.fontSize.value) || 16;
+      const aspect = els.aspect.value;
+      const showNums = els.lineNums.checked;
+      const useHighlight = els.highlight.checked;
+      const showDots = els.windowDots.checked;
+      const title = (els.title.value || "snippet").trim();
+      const watermark = (els.watermark.value || "").trim();
+
+      const baseWidth = 820;
+      const outerPad = 46;
+      const headerH = 46;
+      const lineH = Math.round(fontSize * 1.65);
+      const codePadTop = 22;
+      const codePadBottom = 24;
+      const footerSpace = watermark ? 32 : 0;
+
+      const cardW = baseWidth - outerPad * 2;
+      const gutterW = showNums ? 42 : 0;
+      const innerCodeW = cardW - 44 - gutterW;
+      const charW = fontSize * 0.6;
+      const maxChars = Math.max(24, Math.floor(innerCodeW / charW));
+
+      const rawLines = (els.code.value || " ").split("\n");
+      const lines = wrapLines(rawLines, maxChars);
+
+      const minCardH = headerH + codePadTop + lines.length * lineH + codePadBottom;
+      let baseHeight = outerPad * 2 + minCardH + footerSpace;
+
+      if (aspect === "square") {
+        baseHeight = Math.max(baseWidth, baseHeight);
+      } else if (aspect === "portrait") {
+        baseHeight = Math.max(Math.round(baseWidth * 1.25), baseHeight);
+      }
+
+      const cardH = Math.max(minCardH, baseHeight - outerPad * 2 - footerSpace);
+
+      canvas.width = baseWidth * scale;
+      canvas.height = baseHeight * scale;
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+
+      // الخلفية المتدرجة
+      const grad = ctx.createLinearGradient(0, 0, baseWidth, baseHeight);
+      grad.addColorStop(0, theme.bgStart);
+      grad.addColorStop(1, theme.bgEnd);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, baseWidth, baseHeight);
+
+      // إطار البطاقة
+      const cardX = outerPad;
+      const cardY = outerPad;
+      ctx.fillStyle = theme.cardBg;
+      ctx.strokeStyle = theme.border;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      // شريط النافذة العلوي
+      ctx.fillStyle = theme.headerBg;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, headerH, [16, 16, 0, 0]);
+      ctx.fill();
+
+      if (showDots) {
+        ["#ef4444", "#eab308", "#22c55e"].forEach((color, idx) => {
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(cardX + 22 + idx * 20, cardY + headerH / 2, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      // عنوان الملف
+      ctx.fillStyle = theme.watermark;
+      ctx.font = "600 13px ui-monospace, Menlo, Consolas, monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(title, cardX + cardW / 2, cardY + headerH / 2);
+
+      // رسم الكود
+      ctx.font = `${fontSize}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+      ctx.textBaseline = "top";
+
+      const startY = cardY + headerH + codePadTop;
+      const codeStartX = cardX + 22 + gutterW;
+
+      lines.forEach((item, i) => {
+        const y = startY + i * lineH;
+
+        if (showNums && item.num !== "") {
+          ctx.fillStyle = theme.muted;
+          ctx.textAlign = "right";
+          ctx.fillText(String(item.num), cardX + 14 + gutterW - 12, y);
+        }
+
+        ctx.textAlign = "left";
+        let cursorX = codeStartX;
+        const tokens = tokenizeLine(item.text, theme, useHighlight);
+        tokens.forEach(tok => {
+          ctx.fillStyle = tok.color;
+          ctx.fillText(tok.text, cursorX, y);
+          cursorX += ctx.measureText(tok.text).width;
+        });
+      });
+
+      // العلامة المائية
+      if (watermark) {
+        ctx.fillStyle = theme.watermark;
+        ctx.font = "600 14px system-ui, Arial, sans-serif";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText(watermark, baseWidth - outerPad, baseHeight - footerSpace / 2);
+      }
+
+      savePrefs();
+    }
+
+    // دعم زر Tab داخل محرر الكود
+    els.code.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const start = els.code.selectionStart;
+        const end = els.code.selectionEnd;
+        els.code.value = els.code.value.substring(0, start) + "    " + els.code.value.substring(end);
+        els.code.selectionStart = els.code.selectionEnd = start + 4;
+        renderCard();
+      }
+    });
+
+    [
+      els.title, els.watermark, els.theme, els.aspect,
+      els.fontSize, els.scale, els.lineNums, els.highlight,
+      els.windowDots, els.code
+    ].forEach(el => {
+      el.addEventListener("input", renderCard);
+      el.addEventListener("change", renderCard);
+    });
+
+    els.copyCode.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(els.code.value);
+        showToast("تم نسخ الكود إلى الحافظة");
+      } catch {
+        showToast("تعذّر النسخ التلقائي");
+      }
+    });
+
+    els.clear.addEventListener("click", () => {
+      els.code.value = "";
+      renderCard();
+      els.code.focus();
+    });
+
+    els.download.addEventListener("click", () => {
+      const link = document.createElement("a");
+      const safeName = (els.title.value || "code-card").replace(/[^\w.-]+/g, "_");
+      link.download = `${safeName}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      showToast("تم تحميل الصورة بنجاح");
+    });
+
+    loadPrefs();
+    renderCard();
+  </script>
+</body>
+</html>
