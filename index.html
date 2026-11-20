@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0b1120" />
-  <title>Code Card Studio | مولّد بطاقات الكود الاحترافي</title>
+  <title>Code Card Studio v2.1 | مولّد بطاقات الكود</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -14,7 +14,7 @@
       padding: 16px;
       line-height: 1.6;
     }
-    .app { max-width: 980px; margin: 0 auto; }
+    .app { max-width: 1000px; margin: 0 auto; }
     header {
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 10px; margin-bottom: 18px;
@@ -82,7 +82,7 @@
         <h1>Code Card Studio • مولّد بطاقات الكود</h1>
         <div class="sub">تصميم وتصدير بطاقات برمجية عالية الدقة للمنصات التعليمية والاجتماعية</div>
       </div>
-      <div class="sub">v2.0 • Offline Ready</div>
+      <div class="sub">v2.1 • Offline Ready</div>
     </header>
 
     <section class="panel">
@@ -93,7 +93,7 @@
         </div>
         <div>
           <label for="watermarkInput">العلامة المائية</label>
-          <input id="watermarkInput" type="text" placeholder="مثال: @python_plus" />
+          <input id="watermarkInput" type="text" placeholder="مثال: @mmgoqvela-hub" />
         </div>
         <div>
           <label for="themeSelect">الثيم اللوني</label>
@@ -103,6 +103,22 @@
             <option value="emerald">Emerald Night (زمردي ليلي)</option>
             <option value="sunset">Sunset Warm (غروب دافئ)</option>
             <option value="slate">Minimal Slate (رمادي هادئ)</option>
+          </select>
+        </div>
+        <div>
+          <label for="patternSelect">نمط الخلفية</label>
+          <select id="patternSelect">
+            <option value="gradient">تدرج لوني ناعم</option>
+            <option value="grid">شبكة هندسية (Grid)</option>
+            <option value="dots">نقاط خفيفة (Dots)</option>
+          </select>
+        </div>
+        <div>
+          <label for="radiusSelect">استدارة البطاقة</label>
+          <select id="radiusSelect">
+            <option value="16" selected>متوسطة (16px)</option>
+            <option value="24">دائرية (24px)</option>
+            <option value="6">حادة (6px)</option>
           </select>
         </div>
         <div>
@@ -130,6 +146,22 @@
             <option value="1">قياسية (1x)</option>
           </select>
         </div>
+        <div>
+          <label for="formatSelect">صيغة الصورة</label>
+          <select id="formatSelect">
+            <option value="image/png" selected>PNG (شفافية وجودة عالية)</option>
+            <option value="image/jpeg">JPEG (حجم أخف)</option>
+          </select>
+        </div>
+        <div>
+          <label for="presetSelect">قالب كود جاهز</label>
+          <select id="presetSelect">
+            <option value="">-- اختر مثالاً --</option>
+            <option value="py">Python (دالة وحساب)</option>
+            <option value="js">JavaScript (مصفوفة ودالة)</option>
+            <option value="sql">SQL (استعلام بيانات)</option>
+          </select>
+        </div>
       </div>
 
       <div class="toggles">
@@ -141,15 +173,16 @@
       <label for="codeInput">الكود البرمجي (يدعم زر Tab للمسافات البادئة)</label>
       <textarea id="codeInput" spellcheck="false">def calculate_discount(price: float, percent: int) -> float:
     # حساب السعر بعد الخصم
-    if percent <= 0:
+    if percent &lt;= 0:
         return price
-    final_price = price - (price * percent / 100)
+    final_price = price - (price * percent / 100) # تطبيق الخصم
     return round(final_price, 2)
 
 print(calculate_discount(150.0, 20))</textarea>
 
       <div class="actions">
-        <button id="downloadBtn">تحميل الصورة (PNG)</button>
+        <button id="downloadBtn">تحميل الصورة</button>
+        <button id="copyImgBtn" class="secondary">نسخ الصورة</button>
         <button id="copyCodeBtn" class="secondary">نسخ الكود</button>
         <button id="clearBtn" class="secondary">مسح الكود</button>
       </div>
@@ -168,34 +201,63 @@ print(calculate_discount(150.0, 20))</textarea>
   <script>
     const THEMES = {
       ocean: {
-        bgStart: "#0f172a", bgEnd: "#1d4ed8",
+        bgStart: "#0f172a", bgEnd: "#1d4ed8", pattern: "rgba(255,255,255,0.06)",
         cardBg: "#090d16", border: "#1e293b", headerBg: "#111827",
         text: "#f1f5f9", muted: "#64748b", watermark: "#cbd5e1",
-        keyword: "#38bdf8", string: "#4ade80", number: "#fbbf24", comment: "#64748b"
+        keyword: "#38bdf8", func: "#7dd3fc", string: "#4ade80", number: "#fbbf24", comment: "#64748b"
       },
       dracula: {
-        bgStart: "#1e1b4b", bgEnd: "#6d28d9",
+        bgStart: "#1e1b4b", bgEnd: "#6d28d9", pattern: "rgba(255,255,255,0.06)",
         cardBg: "#13111c", border: "#2e2842", headerBg: "#1a1726",
         text: "#f8f8f2", muted: "#6272a4", watermark: "#e9d5ff",
-        keyword: "#ff79c6", string: "#f1fa8c", number: "#bd93f9", comment: "#6272a4"
+        keyword: "#ff79c6", func: "#50fa7b", string: "#f1fa8c", number: "#bd93f9", comment: "#6272a4"
       },
       emerald: {
-        bgStart: "#042f2e", bgEnd: "#047857",
+        bgStart: "#042f2e", bgEnd: "#047857", pattern: "rgba(255,255,255,0.06)",
         cardBg: "#031412", border: "#115e59", headerBg: "#06211e",
         text: "#ecfdf5", muted: "#5eead4", watermark: "#a7f3d0",
-        keyword: "#34d399", string: "#fde047", number: "#38bdf8", comment: "#5eead4"
+        keyword: "#34d399", func: "#6ee7b7", string: "#fde047", number: "#38bdf8", comment: "#5eead4"
       },
       sunset: {
-        bgStart: "#3b0712", bgEnd: "#c2410c",
+        bgStart: "#3b0712", bgEnd: "#c2410c", pattern: "rgba(255,255,255,0.06)",
         cardBg: "#16070a", border: "#4c111c", headerBg: "#220a0f",
         text: "#fff7ed", muted: "#fb923c", watermark: "#fed7aa",
-        keyword: "#fb7185", string: "#fde047", number: "#38bdf8", comment: "#9a3412"
+        keyword: "#fb7185", func: "#fda4af", string: "#fde047", number: "#38bdf8", comment: "#fb923c"
       },
       slate: {
-        bgStart: "#18181b", bgEnd: "#3f3f46",
+        bgStart: "#18181b", bgEnd: "#3f3f46", pattern: "rgba(255,255,255,0.06)",
         cardBg: "#09090b", border: "#27272a", headerBg: "#121215",
         text: "#fafafa", muted: "#71717a", watermark: "#d4d4d8",
-        keyword: "#60a5fa", string: "#a3e635", number: "#f472b6", comment: "#71717a"
+        keyword: "#60a5fa", func: "#93c5fd", string: "#a3e635", number: "#f472b6", comment: "#71717a"
+      }
+    };
+
+    const PRESETS = {
+      py: {
+        title: "find_max.py",
+        code: `def get_top_score(scores: list[int]) -> int:
+    if not scores:
+        return 0
+    return max(scores) # أعلى قيمة في القائمة
+
+print(get_top_score([45, 92, 78, 88]))`
+      },
+      js: {
+        title: "format_price.js",
+        code: `const formatUSD = (amount) => {
+    const clean = Number(amount) || 0;
+    return "$" + clean.toFixed(2); // تنسيق السعر
+};
+
+console.log(formatUSD(49.5));`
+      },
+      sql: {
+        title: "top_customers.sql",
+        code: `SELECT customer_name, SUM(total) AS spent
+FROM orders
+WHERE status = 'paid' -- الطلبات المدفوعة فقط
+GROUP BY customer_name
+ORDER BY spent DESC;`
       }
     };
 
@@ -205,10 +267,11 @@ print(calculate_discount(150.0, 20))</textarea>
       "break", "continue", "True", "False", "None", "and", "or", "not", "is",
       "lambda", "async", "await", "yield", "function", "const", "let", "var",
       "export", "default", "new", "this", "null", "undefined", "SELECT", "FROM",
-      "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE"
+      "WHERE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE",
+      "TABLE", "GROUP", "BY", "ORDER", "DESC", "ASC", "SUM"
     ]);
 
-    const STORAGE_KEY = "code_card_studio_v2";
+    const STORAGE_KEY = "code_card_studio_v2_1";
     const canvas = document.getElementById("cardCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -216,14 +279,19 @@ print(calculate_discount(150.0, 20))</textarea>
       title: document.getElementById("titleInput"),
       watermark: document.getElementById("watermarkInput"),
       theme: document.getElementById("themeSelect"),
+      pattern: document.getElementById("patternSelect"),
+      radius: document.getElementById("radiusSelect"),
       aspect: document.getElementById("aspectSelect"),
       fontSize: document.getElementById("fontSizeSelect"),
       scale: document.getElementById("scaleSelect"),
+      format: document.getElementById("formatSelect"),
+      preset: document.getElementById("presetSelect"),
       lineNums: document.getElementById("lineNumsCheck"),
       highlight: document.getElementById("highlightCheck"),
       windowDots: document.getElementById("windowDotsCheck"),
       code: document.getElementById("codeInput"),
       download: document.getElementById("downloadBtn"),
+      copyImg: document.getElementById("copyImgBtn"),
       copyCode: document.getElementById("copyCodeBtn"),
       clear: document.getElementById("clearBtn"),
       toast: document.getElementById("toast")
@@ -232,7 +300,7 @@ print(calculate_discount(150.0, 20))</textarea>
     function showToast(text) {
       els.toast.textContent = text;
       els.toast.classList.add("show");
-      setTimeout(() => els.toast.classList.remove("show"), 2000);
+      setTimeout(() => els.toast.classList.remove("show"), 2200);
     }
 
     function savePrefs() {
@@ -241,9 +309,12 @@ print(calculate_discount(150.0, 20))</textarea>
           title: els.title.value,
           watermark: els.watermark.value,
           theme: els.theme.value,
+          pattern: els.pattern.value,
+          radius: els.radius.value,
           aspect: els.aspect.value,
           fontSize: els.fontSize.value,
           scale: els.scale.value,
+          format: els.format.value,
           lineNums: els.lineNums.checked,
           highlight: els.highlight.checked,
           windowDots: els.windowDots.checked
@@ -258,30 +329,48 @@ print(calculate_discount(150.0, 20))</textarea>
         if (saved.title !== undefined) els.title.value = saved.title;
         if (saved.watermark !== undefined) els.watermark.value = saved.watermark;
         if (saved.theme) els.theme.value = saved.theme;
+        if (saved.pattern) els.pattern.value = saved.pattern;
+        if (saved.radius) els.radius.value = saved.radius;
         if (saved.aspect) els.aspect.value = saved.aspect;
         if (saved.fontSize) els.fontSize.value = saved.fontSize;
         if (saved.scale) els.scale.value = saved.scale;
+        if (saved.format) els.format.value = saved.format;
         if (typeof saved.lineNums === "boolean") els.lineNums.checked = saved.lineNums;
         if (typeof saved.highlight === "boolean") els.highlight.checked = saved.highlight;
         if (typeof saved.windowDots === "boolean") els.windowDots.checked = saved.windowDots;
       } catch {}
     }
 
+    function splitInlineComment(line) {
+      let inSingle = false, inDouble = false, inBacktick = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        const prev = i > 0 ? line[i - 1] : "";
+        if (ch === "'" && !inDouble && !inBacktick && prev !== "\\") inSingle = !inSingle;
+        else if (ch === '"' && !inSingle && !inBacktick && prev !== "\\") inDouble = !inDouble;
+        else if (ch === "`" && !inSingle && !inDouble && prev !== "\\") inBacktick = !inBacktick;
+        else if (!inSingle && !inDouble && !inBacktick) {
+          if (ch === "#" || (ch === "/" && line[i + 1] === "/") || (ch === "-" && line[i + 1] === "-")) {
+            return { codePart: line.slice(0, i), commentPart: line.slice(i) };
+          }
+        }
+      }
+      return { codePart: line, commentPart: "" };
+    }
+
     function tokenizeLine(line, theme, useHighlight) {
       if (!useHighlight) return [{ text: line, color: theme.text }];
 
-      const trimmed = line.trim();
-      if (trimmed.startsWith("#") || trimmed.startsWith("//") || trimmed.startsWith("--")) {
-        return [{ text: line, color: theme.comment }];
-      }
-
+      const { codePart, commentPart } = splitInlineComment(line);
       const tokens = [];
-      const regex = /("[^"]*"|'[^']*'|`[^`]*`|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b|[^\sA-Za-z0-9_]+|\s+)/g;
-      let match;
+      const regex = /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b|[^\sA-Za-z0-9_]+|\s+)/g;
+      const parts = codePart.match(regex) || [];
 
-      while ((match = regex.exec(line)) !== null) {
-        const part = match[0];
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        const nextNonSpace = parts.slice(i + 1).find(p => p.trim() !== "");
         let color = theme.text;
+
         if ((part.startsWith('"') && part.endsWith('"')) ||
             (part.startsWith("'") && part.endsWith("'")) ||
             (part.startsWith("`") && part.endsWith("`"))) {
@@ -290,8 +379,14 @@ print(calculate_discount(150.0, 20))</textarea>
           color = theme.number;
         } else if (KEYWORDS.has(part)) {
           color = theme.keyword;
+        } else if (/^[A-Za-z_]\w*$/.test(part) && nextNonSpace === "(") {
+          color = theme.func;
         }
         tokens.push({ text: part, color });
+      }
+
+      if (commentPart) {
+        tokens.push({ text: commentPart, color: theme.comment });
       }
       return tokens;
     }
@@ -313,8 +408,37 @@ print(calculate_discount(150.0, 20))</textarea>
       return result;
     }
 
+    function drawBackgroundPattern(width, height, theme, patternType) {
+      ctx.save();
+      ctx.strokeStyle = theme.pattern;
+      ctx.fillStyle = theme.pattern;
+      ctx.lineWidth = 1;
+
+      if (patternType === "grid") {
+        const step = 32;
+        for (let x = 0; x <= width; x += step) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+        }
+        for (let y = 0; y <= height; y += step) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+        }
+      } else if (patternType === "dots") {
+        const step = 28;
+        for (let x = 14; x < width; x += step) {
+          for (let y = 14; y < height; y += step) {
+            ctx.beginPath();
+            ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      ctx.restore();
+    }
+
     function renderCard() {
       const theme = THEMES[els.theme.value] || THEMES.ocean;
+      const patternType = els.pattern.value || "gradient";
+      const radius = Number(els.radius.value) || 16;
       const scale = Number(els.scale.value) || 2;
       const fontSize = Number(els.fontSize.value) || 16;
       const aspect = els.aspect.value;
@@ -363,21 +487,33 @@ print(calculate_discount(150.0, 20))</textarea>
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, baseWidth, baseHeight);
 
-      // إطار البطاقة
+      drawBackgroundPattern(baseWidth, baseHeight, theme, patternType);
+
+      // ظل وإطار البطاقة
       const cardX = outerPad;
       const cardY = outerPad;
+      ctx.save();
+      ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 12;
       ctx.fillStyle = theme.cardBg;
       ctx.strokeStyle = theme.border;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(cardX, cardY, cardW, cardH, 16);
+      ctx.roundRect(cardX, cardY, cardW, cardH, radius);
       ctx.fill();
+      ctx.restore();
+
+      ctx.strokeStyle = theme.border;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, radius);
       ctx.stroke();
 
       // شريط النافذة العلوي
       ctx.fillStyle = theme.headerBg;
       ctx.beginPath();
-      ctx.roundRect(cardX, cardY, cardW, headerH, [16, 16, 0, 0]);
+      ctx.roundRect(cardX, cardY, cardW, headerH, [radius, radius, 0, 0]);
       ctx.fill();
 
       if (showDots) {
@@ -434,7 +570,15 @@ print(calculate_discount(150.0, 20))</textarea>
       savePrefs();
     }
 
-    // دعم زر Tab داخل محرر الكود
+    els.preset.addEventListener("change", () => {
+      const p = PRESETS[els.preset.value];
+      if (!p) return;
+      els.title.value = p.title;
+      els.code.value = p.code;
+      renderCard();
+      showToast("تم تحميل المثال بنجاح");
+    });
+
     els.code.addEventListener("keydown", (e) => {
       if (e.key === "Tab") {
         e.preventDefault();
@@ -447,9 +591,9 @@ print(calculate_discount(150.0, 20))</textarea>
     });
 
     [
-      els.title, els.watermark, els.theme, els.aspect,
-      els.fontSize, els.scale, els.lineNums, els.highlight,
-      els.windowDots, els.code
+      els.title, els.watermark, els.theme, els.pattern, els.radius,
+      els.aspect, els.fontSize, els.scale, els.format, els.lineNums,
+      els.highlight, els.windowDots, els.code
     ].forEach(el => {
       el.addEventListener("input", renderCard);
       el.addEventListener("change", renderCard);
@@ -464,6 +608,20 @@ print(calculate_discount(150.0, 20))</textarea>
       }
     });
 
+    els.copyImg.addEventListener("click", async () => {
+      if (!navigator.clipboard || typeof ClipboardItem === "undefined") {
+        showToast("نسخ الصورة غير مدعوم في هذا المتصفح، استخدم التحميل");
+        return;
+      }
+      try {
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        showToast("تم نسخ الصورة إلى الحافظة");
+      } catch {
+        showToast("تعذّر نسخ الصورة، استخدم زر التحميل");
+      }
+    });
+
     els.clear.addEventListener("click", () => {
       els.code.value = "";
       renderCard();
@@ -471,12 +629,14 @@ print(calculate_discount(150.0, 20))</textarea>
     });
 
     els.download.addEventListener("click", () => {
+      const mime = els.format.value || "image/png";
+      const ext = mime === "image/jpeg" ? "jpg" : "png";
       const link = document.createElement("a");
       const safeName = (els.title.value || "code-card").replace(/[^\w.-]+/g, "_");
-      link.download = `${safeName}.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.download = `${safeName}.${ext}`;
+      link.href = mime === "image/jpeg" ? canvas.toDataURL(mime, 0.92) : canvas.toDataURL(mime);
       link.click();
-      showToast("تم تحميل الصورة بنجاح");
+      showToast(`تم تحميل الصورة (${ext.toUpperCase()})`);
     });
 
     loadPrefs();
